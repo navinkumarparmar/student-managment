@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="styles.css"> 
+    <style>
+        body {
+            background-image: url('https://img.freepik.com/free-photo/paper-textured-background_53876-30486.jpg?size=626&ext=jpg&ga=GA1.1.34264412.1716508800&semt=ais_user');
+            background-size: cover;
+            background-position: center;
+            height: 250vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif; 
+        }
+
+        h1 {
+            color: rgb(174, 11, 11); 
+        }
+
+        div {
+            background-color: rgba(8, 62, 79, 0.8);
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #6a0e0e;
+            text-align: left;
+        }
+
+        th {
+            background-color: #ccbf9d;
+        }
+
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome Admin</h1>
+    <div>
+        <h2>Students Information</h2>
+        <input type="text" id="searchInput" placeholder="Search..." oninput="searchStudents()"><br><br>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Batch</th>
+                    <th>Gender</th>
+                    <th>Department</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="studentsTableBody">
+              
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <h2>Result</h2>
+        <button onclick="openResultPage()">Add Result</button>
+        <table border="1">
+            <thead>
+                <tr>
+                 
+                    <th>Student ID</th>
+                    <th>Semester</th>
+                    <th>CGPA</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="resultTableBody">
+             
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <h2>Create Student</h2>
+        <button onclick="openUserCreatePage()">Create New Student</button>
+       
+     
+    </div>
+
+    <script>
+        
+        function fetchStudents() {
+          
+            fetch('http://localhost:5656/api/user/getAllStudents')
+                .then(response => response.json())
+                .then(data => {
+                    const studentsTableBody = document.getElementById('studentsTableBody');
+                    studentsTableBody.innerHTML = ''; 
+                    data.forEach(student => {
+                        const row = `
+                            <tr>
+                                <td>${student.studentid}</td>
+                                <td>${student.name}</td>
+                                <td>${student.batch}</td>
+                                <td>${student.gender}</td>
+                                <td>${student.department}</td>
+                                <td>${student.email}</td>
+                                <td>
+                                    <button onclick="viewStudent(${student.studentid})">View</button>
+                                    <button onclick="editStudent(${student.studentid})">Edit</button>
+                                    <button onclick="deleteStudent(${student.studentid})">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                        studentsTableBody.innerHTML += row;
+                    });
+                })
+                .catch(error => console.error('Error fetching students:', error));
+        }
+
+       
+        function fetchResults() {
+            fetch('http://localhost:5656/api/result/getallresultdata')
+                .then(response => response.json())
+                .then(data => {
+                    const resultTableBody = document.getElementById('resultTableBody');
+                    resultTableBody.innerHTML = ''; 
+                    data.forEach(result => {
+                        const row = `
+                            <tr>
+                             
+                                <td>${result.studentid}</td>
+                                <td>${result.semester}</td>
+                                <td>${result.cgpa}</td>
+                                <td>
+                                    <button onclick="viewResult(${result.studentid})">View</button>
+                                    <button onclick="editResult(${result.studentid})">Edit</button>
+                                    <button onclick="deleteResult(${result.studentid})">Delete</button>
+                                 _
+                                    
+                                </td>
+                            </tr>
+                        `;
+                        resultTableBody.innerHTML += row;
+                    });
+                })
+                .catch(error => console.error('Error fetching results:', error));
+        }
+
+        function searchStudents() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#studentsTableBody tr');
+
+    rows.forEach(row => {
+        let matchFound = false;
+
+        
+        Array.from(row.cells).forEach(cell => {
+            const cellText = cell.textContent.toLowerCase().trim();
+            if (cellText.includes(searchInput)) {
+                matchFound = true;
+            }
+        });
+
+       
+        if (matchFound) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+        
+        function openResultPage() {
+            window.location.href = '/result.html';
+        }
+
+        
+        function openUserCreatePage() {
+            window.location.href = '/usercreate.html';
+        }
+
+        function editStudent(studentid){
+            window.location.href = '/editform.html';  
+        }
+
+        
+        function deleteStudent(studentId) {
+        
+            if (confirm(`Are you sure you want to delete this student with ID ${studentId}?`)) {
+                fetch(`http://localhost:5656/api/user/Delete/${studentId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete student');
+                    }
+               
+                    location.reload();
+                })
+                .catch(error => console.error('Error deleting student:', error));
+            }
+        }
+
+        function deleteResult(studentId) {
+    if (confirm(`Are you sure you want to delete this result for student with ID ${studentId}?`)) {
+        fetch(`http://localhost:5656/api/result/Delete/${studentId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to delete result');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data.message); 
+            location.reload(); 
+        })
+        .catch(error => console.error('Error deleting result:', error));
+    }
+}
+
+
+        
+        function viewStudent(studentId) {
+         
+            fetch(`http://localhost:5656/api/user/getstudent/${studentId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch student details');
+                    }
+                    return response.json();
+                })
+                .then(student => {
+                    alert(`Student ID: ${student.studentid}\nName: ${student.name}\nBatch: ${student.batch}\nGender: ${student.gender}\nDepartment: ${student.department}\nEmail: ${student.email}`);
+                })
+                .catch(error => console.error('Error fetching student details:', error));
+        }
+        
+        
+async function editStudent(studentId) {
+
+    fetch(`http://localhost:5656/api/user/getstudent/${studentId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch student details');
+                    }
+                    return response.json();
+                })
+                .then(student => {
+                    alert(`Student ID: ${student.studentid}\nName: ${student.name}\nBatch: ${student.batch}\nGender: ${student.gender}\nDepartment: ${student.department}\nEmail: ${student.email}`);
+                    document.getElementById("studentid").value = student.studentid;
+
+                })
+                .catch(error => console.error('Error fetching student details:', error));
+}
+
+//     function editStudent(studentId) {
+//     fetch(`http://localhost:5656/api/user/getstudent/${studentId}`)
+   
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Failed to fetch student details');
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+         
+         
+//         })
+//         .catch(error => {
+//             console.error('Error:', error);
+//             alert('Failed to fetch student details');
+//         });
+// }
+
+
+
+        function viewResult(studentid) {
+        fetch(`http://localhost:5656/api/result/getresultstudent/${studentid}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch result details');
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (!result || !Array.isArray(result) || result.length === 0) {
+                throw new Error('No result found for this student');
+            }
+
+            let resultDetails = `Student Name: ${result[0].name}\n`;
+           
+                result.forEach(data => {
+                  
+                    resultDetails += `Semester: ${data.semester},CGPA: ${data.cgpa}\n`;
+                });
+                alert(resultDetails);
+            })
+            .catch(error => console.error('Error fetching result details:', error));
+    }
+    
+    
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchStudents();
+            fetchResults();
+           
+        });
+    </script>
+</body>
+</html>

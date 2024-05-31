@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Results</title>
+</head>
+<body>
+    <h1>Student Results</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Semester</th>
+                <th>CGPA</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="resultsTableBody">
+            <!-- Results will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <script>
+        // Fetch results for the student
+        fetch('/api/result/getAllResultsByStudentId/{{studentId}}') // Replace {{studentId}} with the actual studentId
+            .then(response => response.json())
+            .then(results => {
+                const resultsTableBody = document.getElementById('resultsTableBody');
+                results.forEach(result => {
+                    const row = `
+                        <tr>
+                            <td>${result.semester}</td>
+                            <td>${result.cgpa}</td>
+                            <td>
+                                <button onclick="viewResult(${result.id})">View</button>
+                                <button onclick="editResult(${result.id})">Edit</button>
+                            </td>
+                        </tr>
+                    `;
+                    resultsTableBody.innerHTML += row;
+                });
+            })
+            .catch(error => console.error('Error fetching results:', error));
+
+        function viewResult(resultId) {
+            // Implement viewResult function to show the details of the selected result
+            console.log('Viewing result with ID:', resultId);
+        }
+
+        function editResult(resultId) {
+            // Implement editResult function to edit the selected result
+            console.log('Editing result with ID:', resultId);
+        }
+    </script>
+</body>
+</html>

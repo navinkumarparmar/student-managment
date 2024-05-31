@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Signup</title>
+    <style>
+        body {
+            background-image: url('https://img.freepik.com/free-photo/workplace-with-blue-office-supplies_23-2147843328.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #loginForm, #signupForm, #forgotPasswordForm, #resetPasswordForm {
+            background-color: rgba(255, 255, 255, 0.5); 
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px); 
+            display: none;
+        }
+
+        #loginForm {
+            display: block;
+        }
+
+        #error {
+            color: red;
+            display: none;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"] {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+   
+    <div id="loginForm">
+        <h1>Login</h1>
+        <form id="loginFormElement">
+            <label for="loginUsername">Username:</label>
+            <input type="text" id="loginUsername" name="username" required><br>
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" name="password" required><br>
+            <button type="submit">Login</button>
+            <p id="error">Invalid username or password</p>
+            <a href="#" id="forgotPasswordLink">Forgot Password?</a><br>
+            <a href="#" id="signupLink">Signup</a>
+        </form>
+    </div>
+
+   
+    <div id="signupForm">
+        <h1>Signup</h1>
+        <form id="signupFormElement">
+            <label for="signupUsername">username:</label>
+            <input type="text" id="signupUsername" name="username" required><br>
+            <label for="signupEmail">Email:</label>
+            <input type="email" id="signupEmail" name="email" required><br>
+            <label for="signupPassword">Password:</label>
+            <input type="password" id="signupPassword" name="password" required><br>
+            <button type="submit">Signup</button>
+            <!-- <p id="errorSignup">Error signing up</p> -->
+            <a href="#" id="loginLink">Login</a>
+        </form>
+    </div>
+
+ 
+    <div id="forgotPasswordForm">
+        <h1>Forgot Password</h1>
+        <form id="forgotPasswordFormElement">
+            <label for="forgotUsername">Username:</label>
+            <input type="text" id="forgotUsername" name="username" required><br>
+            <button type="submit">Send OTP</button>
+            <p id="errorForgotPassword">sending OTP</p>
+        </form> 
+    </div>
+
+   
+    <div id="resetPasswordForm">
+        <h1>Reset Password</h1>
+        <form id="resetPasswordFormElement">
+            <label for="resetUsername">Username:</label>
+            <input type="text" id="resetUsername" name="username" required><br>
+            <label for="otp">OTP:</label>
+            <input type="text" id="otp" name="otp" required><br>
+            <label for="newPassword">New Password:</label>
+            <input type="password" id="newPassword" name="newPassword" required><br>
+            <button type="submit">Reset Password</button>
+            <p id="errorResetPassword">Error resetting password</p>
+        </form>
+    </div>
+
+    <script>
+       
+        document.getElementById('forgotPasswordLink').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('forgotPasswordForm').style.display = 'block';
+        });
+
+        document.getElementById('signupLink').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'block';
+        });
+
+        document.getElementById('loginLink').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        });
+
+       
+        
+        document.getElementById('loginFormElement').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const jsonData = {};
+
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => { throw new Error(errData.error || 'Login failed'); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                window.location.href = '/dashboard.html';
+           
+            })
+            .catch(error => {
+                document.getElementById('error').innerText = error.message;
+                document.getElementById('error').style.display = 'block';
+            });
+        });
+       
+       
+
+       
+        document.getElementById('signupFormElement').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const jsonData = {};
+
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            }); 
+
+            fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => { throw new Error(errData.error || 'Signup failed'); });
+                    
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                document.getElementById('signupForm').style.display = 'none';
+                document.getElementById('loginForm').style.display = 'block';
+            })
+            .catch(error => {
+                document.getElementById('errorSignup').innerText = error.message;
+                document.getElementById('errorSignup').style.display = 'block';
+            });
+        });
+
+       
+        document.getElementById('forgotPasswordFormElement').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const jsonData = {};
+
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+
+            fetch('/api/auth/forgetPassword', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => { throw new Error(errData.error || 'Error sending OTP'); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                document.getElementById('forgotPasswordForm').style.display = 'none';
+                document.getElementById('resetPasswordForm').style.display = 'block';
+            })
+            .catch(error => {
+                document.getElementById('errorForgotPassword').innerText = error.message;
+                document.getElementById('errorForgotPassword').style.display = 'block';
+            });
+        });
+
+       
+        document.getElementById('resetPasswordFormElement').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const jsonData = {};
+
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+
+            fetch('/api/auth/resetPassword', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => { throw new Error(errData.error || 'Error resetting password'); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                document.getElementById('resetPasswordForm').style.display = 'none';
+                document.getElementById('loginForm').style.display = 'block';
+            })
+            .catch(error => {
+                document.getElementById('errorResetPassword').innerText = error.message;
+                document.getElementById('errorResetPassword').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

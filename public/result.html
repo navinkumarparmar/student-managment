@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Result</title>
+</head>
+<body>
+    <h1>Create Result</h1>
+    <form id="createResultForm">
+        <label for="studentId">Student ID:</label>
+        <input type="text" id="studentId" name="studentid" required><br>
+        <label for="semester">Semester:</label>
+        <input type="text" id="semester" name="semester" required><br>
+        <label for="cgpa">CGPA:</label>
+        <input type="text" id="cgpa" name="cgpa" required><br>
+        <button type="submit">Create Result</button>
+    </form>
+    
+    <script>
+        document.getElementById('createResultForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+            fetch('/api/result/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                
+                alert(data.message);
+            })
+            .catch(error => {
+                console.log(error.message)
+                console.error('Error:', error);
+                alert('An error occurred while processing the request');
+            });
+        });
+    </script>
+</body>
+</html>
